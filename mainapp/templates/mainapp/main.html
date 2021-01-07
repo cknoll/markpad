@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+{% load static %}
+
+
+<html>
+<head lang="en">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<!--  prevent favicon -->
+<link rel="icon" href="data:,">
+
+<link type="text/css" rel="stylesheet" href="{% static 'mainapp/base.css' %}">
+
+<title>MainApp - Test APP</title>
+
+</head>
+<body>
+{# This is a template comment. Its content will not be present in the rendered response. #}
+{# `utc` means "unit test comment". This is a simple mechanism to be able to test if the desired content actually was delivered #}
+<!--utc_landing_page-->
+
+<div class="main">
+    This content is dynamically generated during template-rendering (see views.py:): <b>{{greeting_message}}</b>.
+
+    {# if this variable is not present nothing will be printed #}
+    {% if data_len %}
+        <br><br>
+        Got {{data_len}} characters of form data.
+
+    {% endif %}
+
+    <br>
+    <br>
+    <hr>
+    <br>
+    The following text is just some example text which is hardcoded in the template.
+    <br>
+    Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+    <br>
+    This button should open an alert-dialog and add some debug-text to the console.
+    <button id='button' href='#'>JS-Test-Button</button>
+
+    <br>
+    <hr>
+    <br>
+    <b>Example Form</b>
+        <form method="post" action="{% url 'landingpage'%}" novalidate>
+        {% csrf_token %}
+
+        <input type="hidden" name="field0" value="some hidden value" >
+        <input type="text" name="field1" value="default text" >
+        <textarea name="field2" cols="50" rows="8">Some more text </textarea>
+
+        <br>
+
+        <button type="submit">Submit</button>
+        </form>
+
+</div>
+
+<script type="text/javascript" src="{% static 'mainapp/main.js' %}"></script>
+
+</body>
+</html>

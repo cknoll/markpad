@@ -1,0 +1,7 @@
+.idea/*
+*.pyc
+*.log
+*/__pycache__/*
+*/.directory
+.directory
+db.sqlite3
