@@ -40,7 +40,11 @@ INSTALLED_APPS = [
 
     # for improved testing experience
     'django_nose',
-    # the example app
+
+    # necessary utility package
+    'markdownify',
+
+    # the actual app
     'mainapp.apps.MainAppConfig',
 ]
 
@@ -127,3 +131,22 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 SITE_ID = 1
+
+# source: https://django-markdownify.readthedocs.io/en/latest/settings.html
+MARKDOWNIFY_WHITELIST_TAGS = [
+    'a',
+    'abbr',
+    'acronym',
+    'b',
+    'blockquote',
+    'em',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'i',
+    'li',
+    'ol',
+    'p',
+    'strong',
+    'ul'
+]
+
+# MARKDOWNIFY_WHITELIST_TAGS defaults to bleach.sanitizer.ALLOWED_TAGS
