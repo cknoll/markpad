@@ -14,56 +14,35 @@
 <link type="text/css" rel="stylesheet" href="{% static 'mainapp/base.css' %}">
 
 
-<title>{% block title %}MainApp - Test APP{% endblock %}</title>
+<title>{% block title %}mdpad – render markdown from etherpads{% endblock %}</title>
 
 </head>
 <body>
-{# This is a template comment. Its content will not be present in the rendered response. #}
+
 {# `utc` means "unit test comment". This is a simple mechanism to be able to test if the desired content actually was delivered #}
 <!--utc_landing_page-->
 
 <div class="main">
 {% block content %}
-    This content is dynamically generated during template-rendering (see views.py:): <b>{{greeting_message}}</b>.
+    <h1>Render Markdown from Pad</h1>
 
-    {# if this variable is not present nothing will be printed #}
-    {% if data_len %}
-        <br><br>
-        Got {{data_len}} characters of form data.
-
-    {% endif %}
-
-    <br>
-    <br>
-    <hr>
-    <br>
-    The following text is just some example text which is hardcoded in the template.
-    <br>
-    Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-    <br>
-    This button should open an alert-dialog and add some debug-text to the console.
-    <button id='button' href='#'>JS-Test-Button</button>
-
-    <br>
-    <hr>
-    <br>
-    <b>Example Form</b>
+    <b>Enter pad url:</b>
         <form method="post" action="{% url 'landingpage'%}" novalidate>
         {% csrf_token %}
 
         <input type="hidden" name="field0" value="some hidden value" >
-        <input type="text" name="field1" value="default text" >
-        <textarea name="field2" cols="50" rows="8">Some more text </textarea>
-
-        <br>
+        <input class="form_input" type="text" name="field1" value="https://" ><br>
 
         <button type="submit">Submit</button>
         </form>
 {% endblock %}
+<hr>
+<div align="center">
+    <a href="/about">about mdpad</a><br>
+    made with <a href="https://www.djangoproject.com/">django</a> and
+    <a href="https://django-markdownify.readthedocs.io/">markdownify</a>
 </div>
-
-<script type="text/javascript" src="{% static 'mainapp/main.js' %}"></script>
+</div>
 
 </body>
 </html>

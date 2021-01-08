@@ -44,7 +44,19 @@ body a:hover{
     margin-top: -10px;
     margin-right: auto;
     margin-left: auto;
-    width: 90vw;
-    max-width: 35em;
+    max-width: 60em;
     background-color: #FAFAFA;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.form_input {
+    width: 98%;
+}
+
+
+body hr{
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75) 40%, rgba(0, 0, 0, 0.75) 60%, rgba(0, 0, 0, 0));
 }

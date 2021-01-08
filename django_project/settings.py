@@ -139,15 +139,17 @@ MARKDOWNIFY_WHITELIST_TAGS = [
     'acronym',
     'b',
     'blockquote',
-    'br'
+    'code'
     'em',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'i',
     'li',
     'ol',
     'p',
+    'pre',
     'strong',
     'ul'
 ]
 
 # MARKDOWNIFY_WHITELIST_TAGS defaults to bleach.sanitizer.ALLOWED_TAGS
+MARKDOWNIFY_STRIP = False
