@@ -1,5 +1,6 @@
 {% extends "mainapp/base.html" %}
-{% load markdownify %}
+{% load extra_filters %}
+{% load bleach_tags %}
 
 
 
@@ -18,7 +19,7 @@
     </center>
     <hr>
 
-{{ctn.src_txt|markdownify}}
+{{ctn.src_txt|render_markdown|bleach}}
     <hr>
     <center>End of Markdown-Preview</center>
     <hr>
