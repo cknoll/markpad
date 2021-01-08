@@ -13,19 +13,16 @@ class Container(object):
     pass
 
 
-def home_page_view(request, form_data_len=None):
-    context = dict(greeting_message="Hello, World!", data_len=form_data_len)
+def home_page_view(request):
+    context = dict()
 
     if request.method == 'POST':
-        # here the data of the HTML-form can be processed. E.g it can be saved to the database etc.
-        # for demonstration convert the dict `request.POST` to a json representaion
         form_data_str = json.dumps(request.POST)
         print(form_data_str)
 
         # use the Post-Redirect-Get (PRG) pattern
         # (see: https://www.theserverside.com/news/1365146/Redirect-After-Post)
-
-        url = reverse('landingpage_with_form_data', kwargs={"form_data_len": len(form_data_str)})
+        url = reverse('md_preview', kwargs={"padurl": form_data_str})
         return HttpResponseRedirect(url)
 
     return render(request, 'mainapp/main.html', context)
@@ -39,18 +36,15 @@ class ViewMdPreview(View):
     # noinspection PyMethodMayBeStatic
     def get(self, request, padurl=None):
 
-        src_url = "https://pad.fsfw-dresden.de/p/funding-foss-35c3/export/txt"
+        if padurl is None:
+            padurl = "https://yopad.eu/p/mdpad-default-365days"
 
-        assert src_url.endswith("/export/txt")
-
-        # noinspection PyUnresolvedReferences
-        r = urllib.request.urlopen(src_url)
-        src_txt = r.read().decode("utf8")
+        md_src_url = f"{padurl}/export/txt"
+        src_txt = get_md_src_or_error_msg(md_src_url)
 
         ctn = Container()
         ctn.src_txt = src_txt
-        ctn.src_url = src_url.replace("/export/txt", "")
-        ctn.a = 8
+        ctn.pad_url = padurl
 
         base = Container()
         # endow_base_object(base, request)
@@ -59,15 +53,12 @@ class ViewMdPreview(View):
         return render(request, 'mainapp/md_preview.html', context)
 
 
-def debug_view(request, xyz=0):
-
-    z = 1
-
-    if xyz == 1:
-        # start interactive shell for debugging (helpful if called from the unittests)
-        IPS()
-
-    elif xyz == 2:
-        return HttpResponseServerError("Errormessage")
-
-    return HttpResponse('Some plain message')
+def get_md_src_or_error_msg(md_src_url):
+    try:
+        # noinspection PyUnresolvedReferences
+        r = urllib.request.urlopen(md_src_url)
+        src_txt = r.read().decode("utf8")
+    # noinspection PyUnresolvedReferences
+    except urllib.error.HTTPError:
+        src_txt = f"**Error:** The following URL could not be read: \n\n `{md_src_url}`"
+    return src_txt
