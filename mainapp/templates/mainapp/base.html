@@ -14,17 +14,28 @@
 <link type="text/css" rel="stylesheet" href="{% static 'mainapp/base.css' %}">
 
 
-<title>{% block title %}mdpad – render markdown from etherpads{% endblock %}</title>
+<title>{% block title %}markpad – render markdown from etherpads{% endblock %}</title>
 
 </head>
-<body>
+<body><div id="outer-container">
 
 {# `utc` means "unit test comment". This is a simple mechanism to be able to test if the desired content actually was delivered #}
 <!--utc_landing_page-->
 
-<div class="main">
+<div class="headerbar">
+    <div class="header">
+
+    markpad – markdown rendering from etherpads
+    </div>
+{% block header_warning %}
+{% endblock %}
+</div>
+
+
+
+<div id="id_main" class="main">
 {% block content %}
-    <h1>Render Markdown from Pad</h1>
+    <h1 id="h1x">Render Markdown from Pad</h1>
 
     <b>Enter pad url:</b>
         <form method="post" action="{% url 'landingpage'%}" novalidate>
@@ -36,13 +47,31 @@
         <button type="submit">Submit</button>
         </form>
 {% endblock %}
-<hr>
-<div align="center">
-    <a href="/about">about mdpad</a><br>
-    made with <a href="https://www.djangoproject.com/">django</a> and
-    <a href="https://django-markdownify.readthedocs.io/">markdownify</a>
-</div>
 </div>
 
+<div id="vertical-spacer">
+</div>
+{% block footer %}
+<!-- <footer> -->
+
+<div class="footer">
+<div class="footerbar">
+    <div class="footer-content">
+        <a href="/about">about markpad</a>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        made with <a href="https://www.djangoproject.com/">django</a> and
+        <a href="https://django-markdownify.readthedocs.io/">markdownify</a>
+    </div>
+</div>
+</div>
+<!-- </footer> -->
+{% endblock %}
+</div> <!-- end of outer container -->
 </body>
+
 </html>

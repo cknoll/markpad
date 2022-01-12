@@ -5,24 +5,24 @@
 
 
 {% block title %}simple markdown preview{% endblock %}
+
+
+{% block header_warning %}
+<div class="headerbar-warning">
+<div class="header">
+<div class="fs70">
+<b>Warning:</b> The following content is read from a public source that can be changed by anyone with the url.
+</div>
+</div>
+</div>
+{% endblock %}
+
 {% block content %}
 
 <div class="box_base box_top_content modest_links">
-    <b>Warning:</b> The following content is read from a public source that can be changed by anyone with the url.
-    <br>
-    <hr>
-    <center>
-        Begin of Rendered Mardkown <br>
-        <small>
-            Source: <a href="{{ctn.pad_url}}">{{ctn.pad_url}}</a>
-        </small>
-    </center>
-    <hr>
 
 {{ctn.src_txt|render_markdown|bleach}}
-    <hr>
-    <center>End of Markdown-Preview</center>
-    <hr>
+
 </div>
 
 {% endblock %}

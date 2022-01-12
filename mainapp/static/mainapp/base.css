@@ -4,22 +4,46 @@
 :root {
 
     --color-gray-dark-text: #333;
+    --color-header-background: #EEE;
+    --color-header-warning-background: hsl(30, 80%, 90%);
+    --header-height: 2em;
+    --padding-header: 0.3em;
+    --padding-content: min(2.5vw, 30px);
+    --width-content: min(75vw, 60em); /*→ max width of 960px (@ vw=1280)*/
+
+    /*  the following scaling factor k is calculated by  16px/<min-viewport-width-in-px-at-which-still-normal-font-size> e.g. 16px/640px = 0.025 → 2.5vw    */
+    --font-size-all: max(min(16px, 2.5vw), 10px);
+
 
 
 }
 
-
-html {
+/* https://stackoverflow.com/a/19723677/333403 */
+html, body {
     font-family: sans-serif;
+/*     margin: -8px; */
+    margin: 0px;
+    padding: 0px;
+    height:100%;
+    font-size: var(--font-size-all);
 }
 
+
+#outer-container {
+/*    min-height: calc(100vh - 95px); */
+/*    position:relative; */
+   display: flex;
+  flex-direction: column;
+  min-height: 97.2vh;
+/*   min-height: 100vh; */
+}
 
 
 
 body {
 
     color: var(--color-gray-dark-text);
-    background-color: #E5E5E7;
+    background-color: #FFFFFF;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
 }
@@ -29,25 +53,81 @@ body a{
     text-decoration: none;
 }
 
+
 body a:hover{
     color: inherit;
     text-decoration: underline;
 }
 
-.main {
+.headerbar {
 
+/*     margin-right: -10px; */
+/*     margin-left: -10px; */
     color: var(--color-gray-dark-text);
-    padding-right: 15px;
-    padding-left: 15px;
-    padding-top: 15px;
-    padding-bottom: 15px;
-    margin-top: -10px;
+    width: 100%;
+    border: 1px solid #EEE;
+    position: sticky;
+    top: 0;
+    margin-top: 0px;
+    background-color: var(--color-header-background);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+
+
+/*     height: var(--header-height); */
+
+}
+.vertical-center0 {
+    position: relative;
+    top: 50%;
+    transform: translate(0, -50%);
+}
+
+.header {
     margin-right: auto;
     margin-left: auto;
-    max-width: 60em;
+    width: var(--width-content);
+
+    padding: var(--padding-header);
+
+
+}
+.headerbar-warning {
+
+    color: var(--color-gray-dark-text);
+    background-color: var(--color-header-warning-background);
+}
+.headerbar-warning0 {
+    margin-right: -10px;
+    margin-left: -10px;
+    width: 100%;
+
+    border: 1px solid #EEE;
+    position: fixed;
+    top: var(--header-height);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+
+}
+
+.fs70 {
+    font-size: 0.8em;
+}
+
+.main {
+
+    flex: 0; /*  allow this element to be as high as needed    */
+    color: var(--color-gray-dark-text);
+    padding-right: var(--padding-content);
+    padding-left: var(--padding-content);
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-top: 10px;
+    margin-right: auto;
+    margin-left: auto;
+    width: var(--width-content);
     background-color: #FAFAFA;
-    border-radius: 6px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 2px;
+    border: 3px solid #EEE;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.02), 0 6px 20px 0 rgba(0, 0, 0, 0.02);
 }
 
 .form_input {
@@ -59,4 +139,43 @@ body hr{
     border: 0;
     height: 1px;
     background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75) 40%, rgba(0, 0, 0, 0.75) 60%, rgba(0, 0, 0, 0));
+}
+
+
+
+#vertical-spacer {
+/*  background-color: red; */
+ flex: 1;
+ min-height: 0px;
+}
+
+
+.footer {
+/*   position: absolute; */
+/*   bottom: 0; */
+  width: 100%;
+/*   height: 5.5rem;            /* Footer height */ */
+}
+
+.footerbar {
+
+    color: var(--color-gray-dark-text);
+    width: 100%;
+    border: 1px solid #EEE;
+    margin-top: 5px;
+    background-color: var(--color-header-background);
+
+
+}
+
+.footer-content {
+    margin-right: auto;
+    margin-left: auto;
+    width: var(--width-content);
+
+    padding: var(--padding-header);
+/*     padding-bottom: var(--padding-header); */
+
+
+
 }
