@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from . import util
 from ipydex import IPS
 
 # The tests can be run with
@@ -24,17 +25,11 @@ class TestMainApp1(TestCase):
         self.assertContains(res, "utc_landing_page")
         self.assertNotContains(res, "utc_debug_page")
 
-    def test_debug1(self):
-        res = self.client.get(reverse("debugpage0"))
-        self.assertEquals(res.status_code, 200)
 
-        url = reverse("debugpage_with_argument", kwargs={"xyz": 1})
+class TestUtils(TestCase):
+    def test_(self):
 
-        print("\n-> Debug-URL with argument:", url)
-        # this will start the interactive shell inside the view
-        # res = self.client.get(url)
-
-        # this will deliberately provoke an server error (http status code 500)
-        res = self.client.get(reverse("debugpage_with_argument", kwargs={"xyz": 2}))
-        self.assertEquals(res.status_code, 500)
-
+        static_page_blocks = util.get_static_pages()
+        self.assertIsInstance(static_page_blocks["about"], util.Container)
+        self.assertIn("markdown rendering", static_page_blocks["about"].content)
+        self.assertIn("Legal Notice", static_page_blocks["legal-notice"].title)

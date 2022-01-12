@@ -5,7 +5,9 @@
 
     --color-gray-dark-text: #333;
     --color-header-background: #EEE;
-    --color-header-warning-background: hsl(30, 80%, 90%);
+    --color-footer-background:  hsl(230, 20%, 15%);
+    --color-footer-text:  hsl(00, 10%, 70%);
+    --color-header-warning-background: hsl(25, 100%, 80%);
     --header-height: 2em;
     --padding-header: 0.3em;
     --padding-content: min(2.5vw, 30px);
@@ -34,8 +36,8 @@ html, body {
 /*    position:relative; */
    display: flex;
   flex-direction: column;
-  min-height: 97.2vh;
-/*   min-height: 100vh; */
+/*   min-height: 97.2vh; */
+  min-height: 100vh;
 }
 
 
@@ -50,7 +52,8 @@ body {
 
 body a{
     color: inherit;
-    text-decoration: none;
+    text-decoration: underline dotted;
+/*     text-shadow: 0 0 1px rgba(200, 1, 1, 0.9); */
 }
 
 
@@ -159,11 +162,11 @@ body hr{
 
 .footerbar {
 
-    color: var(--color-gray-dark-text);
+    color: var(--color-footer-text);
     width: 100%;
     border: 1px solid #EEE;
     margin-top: 5px;
-    background-color: var(--color-header-background);
+    background-color: var(--color-footer-background);
 
 
 }
@@ -176,6 +179,14 @@ body hr{
     padding: var(--padding-header);
 /*     padding-bottom: var(--padding-header); */
 
+}
+div.footer a{
+    color: inherit;
+    text-decoration: none;
+    text-shadow: 0 0 2px rgba(200, 1, 1, 0.4);
+}
 
-
+div.footer a:hover{
+    color: inherit;
+    text-shadow: 0 0 2px rgba(200, 1, 1, 0.9);
 }

@@ -17,7 +17,8 @@
 <title>{% block title %}markpad – render markdown from etherpads{% endblock %}</title>
 
 </head>
-<body><div id="outer-container">
+<body>
+<div id="outer-container">
 
 {# `utc` means "unit test comment". This is a simple mechanism to be able to test if the desired content actually was delivered #}
 <!--utc_landing_page-->
@@ -51,27 +52,25 @@
 
 <div id="vertical-spacer">
 </div>
+</div> <!-- end of outer container -->
 {% block footer %}
 <!-- <footer> -->
 
 <div class="footer">
 <div class="footerbar">
     <div class="footer-content">
-        <a href="/about">about markpad</a>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        made with <a href="https://www.djangoproject.com/">django</a> and
-        <a href="https://django-markdownify.readthedocs.io/">markdownify</a>
+        <a href="/about">about markpad</a> |
+        <a href="/legal-notice">legal notice</a> |
+        ... made with <a href="https://www.djangoproject.com">django</a> and
+        <a href="https://django-bleach.readthedocs.io">django-bleach</a> |
+        hosted on <a href="https://uberspace.de/">uberspace</a> |
+
     </div>
 </div>
 </div>
 <!-- </footer> -->
 {% endblock %}
-</div> <!-- end of outer container -->
+
 </body>
 
 </html>

@@ -1,0 +1,20 @@
+{% extends "mainapp/base.html" %}
+{% load extra_filters %}
+{% load bleach_tags %}
+
+
+
+{% block title %}{{ctn.title}}{% endblock %}
+
+
+
+{% block content %}
+
+<div class="box_base box_top_content modest_links">
+
+{{ctn.src_txt|render_markdown|bleach}}
+
+</div>
+
+{% endblock %}
+

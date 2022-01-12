@@ -1,13 +1,13 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
 from django.views import View
 import urllib
 
+from . import util
+from .util import Container
 
-# empty object to store some attributes at runtime
-class Container(object):
-    pass
+static_page_blocks = util.get_static_pages()
 
 
 def home_page_view(request):
@@ -51,6 +51,27 @@ class ViewMdPreview(View):
 
         context = {"ctn": ctn, "base": base}
         return render(request, 'mainapp/md_preview.html', context)
+
+
+class StaticContent(View):
+    """
+    Render the plain txt-content of a pad-url as markdown.
+    """
+
+    # noinspection PyMethodMayBeStatic
+    def get(self, request, key=None):
+        ctn = Container()
+
+        try:
+            block = static_page_blocks[key]
+        except KeyError:
+            raise Http404(f"unknown static-page-key: {key}")
+
+        ctn.title = block.title
+        ctn.src_txt = block.content
+
+        context = {"ctn": ctn}
+        return render(request, 'mainapp/static_page.html', context)
 
 
 # noinspection PyUnresolvedReferences
