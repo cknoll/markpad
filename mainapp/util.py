@@ -1,7 +1,9 @@
 import os
 from django.conf import settings
 import re
+from cryptography.fernet import Fernet
 
+# noinspection PyUnresolvedReferences
 from ipydex import IPS, activate_ips_on_exception
 activate_ips_on_exception()
 
@@ -13,7 +15,7 @@ class Container(dict):
 
 
 def get_static_pages() -> dict:
-    with open(os.path.join(settings.BASE_DIR, "mainapp", "static", "mainapp", "static-content.md"), "r") as txtfile:
+    with open(os.path.join(settings.BASEDIR, "mainapp", "static", "mainapp", "static-content.md"), "r") as txtfile:
         static_content_raw = txtfile.read()
     blocks = static_content_raw.split("<!-- --block-separator-- -->")
 
@@ -46,3 +48,39 @@ def parse_block(block) -> Container:
 
     ctn = Container(slug=slug, title=title, content=block2)
     return ctn
+
+
+def split_url(url: str) -> (str, str):
+    pattern = re.compile(r"^(https?://.*?/)(.*)$")
+    match = pattern.match(url)
+
+    if not match:
+        raise ValueError(f"invalid url: {url}")
+
+    return match.group(1), match.group(2)
+
+
+def obfuscate_source_url(url: str) -> str:
+    part1, part2 = split_url(url)
+    res = f"{part1}{encrypt_str(part2)}"
+
+    return res
+
+
+def deobfuscate_source_url(url: str) -> str:
+    part1, part2 = split_url(url)
+    res = f"{part1}{decrypt_str(part2)}"
+    return res
+
+
+def encrypt_str(s: str) -> str:
+
+    mybytes = s.encode("utf8")
+    f = Fernet(settings.URL_ENCRYPTION_KEY)
+    return f.encrypt(mybytes).decode("utf8")
+
+
+def decrypt_str(s: str) -> str:
+    mybytes = s.encode("utf8")
+    f = Fernet(settings.URL_ENCRYPTION_KEY)
+    return f.decrypt(mybytes).decode("utf8")
