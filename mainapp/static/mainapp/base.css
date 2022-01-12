@@ -91,9 +91,13 @@ body a:hover{
     width: var(--width-content);
 
     padding: var(--padding-header);
-
-
 }
+
+div.header a{
+    color: inherit;
+    text-decoration: none;
+}
+
 .headerbar-warning {
 
     color: var(--color-gray-dark-text);
