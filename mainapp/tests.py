@@ -25,6 +25,21 @@ class TestMainApp1(TestCase):
         self.assertContains(res, "utc_landing_page")
         self.assertNotContains(res, "utc_debug_page")
 
+    def test_home_encrypted_urls(self):
+
+        padurl = "https://etherpad.wikimedia.org/p/some-test-pad"
+        ob_padurl = util.obfuscate_source_url(padurl)
+
+        # test utc-string for encrypted-url-mode
+        url = reverse("md_preview_oburl", kwargs={"src_url": ob_padurl})
+        res = self.client.get(url)
+        self.assertContains(res, f"utc_md_rendering_oburl:{ob_padurl}")
+
+        # test utc-string for plain-url-mode
+        url = reverse("md_preview", kwargs={"src_url": padurl})
+        res = self.client.get(url)
+        self.assertContains(res, f"utc_md_rendering_plain_url:{padurl}")
+
 
 class TestUtils(TestCase):
     def test_get_static_pages(self):

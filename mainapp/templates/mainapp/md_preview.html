@@ -19,8 +19,10 @@
         Source-URL: <a href="{{ctn.src_url}}"><tt>{{ctn.src_url}}</tt></a><br>
         Encrypted source-URL: <a href="{% url 'md_preview_oburl' src_url=ctn.src_oburl %}"><tt>{{ctn.src_oburl|slice:":50"}}...</tt></a><br>
 
+        <!--utc_md_rendering_plain_url:{{ctn.src_url}}-->
 {% else %}
         Encrypted source-URL: <a href="{% url 'md_preview_oburl' src_url=ctn.src_oburl %}"><tt>{{ctn.src_oburl|slice:":50"}}...</tt></a><br>
+        <!--utc_md_rendering_oburl:{{ctn.src_oburl}}-->
 {% endif %}
         </details>
     </div>
