@@ -98,6 +98,11 @@ div.header a{
     text-decoration: none;
 }
 
+div.header a:hover{
+    color: inherit;
+    text-decoration: underline;
+}
+
 .headerbar-warning {
 
     color: var(--color-gray-dark-text);
@@ -117,6 +122,7 @@ div.header a{
 
 .fs70 {
     font-size: 0.8em;
+
 }
 
 .main {
