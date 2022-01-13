@@ -9,11 +9,22 @@
 
 {% block header_warning %}
 <div class="headerbar-warning">
-<div class="header">
-<div class="fs70">
-<b>Warning:</b> The following content is read from a public source that can be changed by anyone with the url.
-</div>
-</div>
+    <div class="header">
+    <div class="fs70">
+        <details>
+            <summary>
+            <b>Warning:</b> The following content is read from a public source that can be changed by anyone with the url.
+            </summary>
+{% if ctn.plain_url_mode %}
+        Source-URL: <a href="{{ctn.src_url}}"><tt>{{ctn.src_url}}</tt></a><br>
+        Encrypted source-URL: <a href="{% url 'md_preview_oburl' src_url=ctn.src_oburl %}"><tt>{{ctn.src_oburl|slice:":50"}}...</tt></a><br>
+
+{% else %}
+        Encrypted source-URL: <a href="{% url 'md_preview_oburl' src_url=ctn.src_oburl %}"><tt>{{ctn.src_oburl|slice:":50"}}...</tt></a><br>
+{% endif %}
+        </details>
+    </div>
+    </div>
 </div>
 {% endblock %}
 

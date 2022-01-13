@@ -34,22 +34,29 @@ class ViewMdPreview(View):
     """
 
     # noinspection PyMethodMayBeStatic
-    def get(self, request, padurl=None):
-
-        if padurl is None:
-            padurl = "https://yopad.eu/p/mdpad-default-365days"
-
-        md_src_url = f"{padurl}/export/txt"
-        src_txt = get_md_src_or_error_msg(md_src_url)
+    def get(self, request, src_url=None, mode="plain_url"):
 
         ctn = Container()
+
+        if src_url is None:
+            src_url = "https://yopad.eu/p/mdpad-default-365days"
+            # Todo: This should yield an error page
+
+        if mode == "plain_url":
+            ctn.plain_url_mode = True
+            ctn.src_url = src_url
+            ctn.src_oburl = util.obfuscate_source_url(src_url)
+        else:
+            ctn.plain_url_mode = False
+            ctn.src_url = util.deobfuscate_source_url(src_url)
+            ctn.src_oburl = src_url
+
+        md_src_url = f"{ctn.src_url}/export/txt"
+        src_txt = get_md_src_or_error_msg(md_src_url)
+
         ctn.src_txt = src_txt
-        ctn.pad_url = padurl
 
-        base = Container()
-        # endow_base_object(base, request)
-
-        context = {"ctn": ctn, "base": base}
+        context = {"ctn": ctn}
         return render(request, 'mainapp/md_preview.html', context)
 
 
