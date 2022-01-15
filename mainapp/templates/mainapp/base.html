@@ -26,7 +26,7 @@
 <div class="headerbar">
     <div class="header">
 
-    <a href="/">markpad – markdown rendering from etherpads</a>
+    <a href="{% url 'landingpage'%}">markpad – markdown rendering from etherpads</a>
     </div>
 {% block header_warning %}
 {% endblock %}
@@ -43,7 +43,7 @@
         {% csrf_token %}
 
         <input type="hidden" name="field0" value="some hidden value" >
-        <input class="form_input" type="text" name="field1" value="https://" ><br>
+        <input class="form_input" type="text" name="field1" placeholder="https://" ><br>
 
         <button type="submit">Submit</button>
         </form>
@@ -59,8 +59,8 @@
 <div class="footer">
 <div class="footerbar">
     <div class="footer-content">
-        <a href="/about">about markpad</a> |
-        <a href="/legal-notice">legal notice</a> |
+        <a href="{% url 'about' %}">about markpad</a> |
+        <a href="{% url 'legal-notice' %}">legal notice</a> |
         ... made with <a href="https://www.djangoproject.com">django</a> and
         <a href="https://django-bleach.readthedocs.io">django-bleach</a> |
         hosted on <a href="https://uberspace.de/">uberspace</a>

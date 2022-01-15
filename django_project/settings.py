@@ -8,7 +8,7 @@ import deploymentutils as du
 
 
 # this allows: `export PELIANGO_CONFIG=/path/to/config.ini; manage.py runserver`
-configpath = os.getenv("PELIANGO_CONFIG", "config.ini")
+configpath = os.getenv("PELIANGO_CONFIG", "config-production.ini")
 
 # export DJANGO_DEVMODE=True; py3 manage.py custom_command
 env_devmode = os.getenv("DJANGO_DEVMODE")
@@ -18,7 +18,7 @@ else:
     DEVMODE = env_devmode.lower() == "true"
 
 
-config = du.get_nearest_config(configpath, devmode=DEVMODE)
+cfg = du.get_nearest_config(configpath, devmode=DEVMODE)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,15 +28,17 @@ BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = cfg("SECRET_KEY")
 
 
-URL_ENCRYPTION_KEY = config("URL_ENCRYPTION_KEY").encode("utf8")
+URL_ENCRYPTION_KEY = cfg("URL_ENCRYPTION_KEY").encode("utf8")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = cfg("DEBUG")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = cfg("ALLOWED_HOSTS")
+
+DJANGO_URL_PREFIX = cfg("django_url_prefix").lstrip("/")
 
 
 # Application definition

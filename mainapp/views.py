@@ -22,7 +22,7 @@ def home_page_view(request):
         if form_data_str == "":
             url = reverse('md_preview')
         else:
-            url = reverse('md_preview', kwargs={"padurl": form_data_str})
+            url = reverse('md_preview', kwargs={"src_url": form_data_str})
         return HttpResponseRedirect(url)
 
     return render(request, 'mainapp/main.html', context)
@@ -39,7 +39,7 @@ class ViewMdPreview(View):
         ctn = Container()
 
         if src_url is None:
-            src_url = "https://yopad.eu/p/mdpad-default-365days"
+            src_url = "http://--undefined-url--.net/p/undefined"
             # Todo: This should yield an error page
 
         if mode == "plain_url":
@@ -83,6 +83,11 @@ class StaticContent(View):
 
 # noinspection PyUnresolvedReferences
 def get_md_src_or_error_msg(md_src_url):
+
+    if "--undefined-url--.net" in md_src_url:
+        src_txt = f"**Error:** No source url was provided."
+        return src_txt
+
     try:
         r = urllib.request.urlopen(md_src_url)
         src_txt = r.read().decode("utf8")
