@@ -5,3 +5,6 @@
 */.directory
 .directory
 db.sqlite3
+
+# avoid accedential publishing of configuration
+config*.ini
