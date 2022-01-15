@@ -2,6 +2,7 @@ import time
 import os
 import re
 import deploymentutils as du
+from os.path import join as pjoin
 
 
 from ipydex import IPS, activate_ips_on_exception
@@ -20,14 +21,24 @@ It is largely based on this tutorial: <https://lab.uberspace.de/guide_django.htm
 # eval $(ssh-agent); ssh-add -t 10m
 
 
-# -------------------------- Begin Essential Config section  ------------------------
-
 # this file must be changed according to your uberspace accound details (machine name and user name)
+cfg = du.get_nearest_config("config-production.ini")
 
-config = du.get_nearest_config("config-production.ini")
 
-remote = config("remote")
-user = config("user")
+remote = cfg("remote_hostname")
+user = cfg("user")
+
+app_name = "mainapp"  # this is the name of the django app (not the project)
+project_name = cfg("PROJECT_NAME")
+
+# this is needed to distinguish different django instances on the same uberspace account
+port = cfg("port")
+django_url_prefix = cfg("django_url_prefix")
+static_url_prefix = cfg("static_url_prefix")
+
+
+asset_dir = pjoin(du.get_dir_of_this_file(), "files")  # contains the templates
+temp_workdir = pjoin(du.get_dir_of_this_file(), "tmp_workdir")  # this will be deleted/overwritten
 
 # -------------------------- Begin Optional Config section -------------------------
 # if you know what you are doing you can adapt these settings to your needs
@@ -36,94 +47,42 @@ user = config("user")
 # if you maintain more than one instance (and deploy.py lives outside the project dir, this has to change)
 project_src_path = os.path.dirname(du.get_dir_of_this_file())
 
-# base directory for local testing deployment
-# might also be the place for a custom deploy_local.py script
-local_deployment_workdir = "../../local_testing"
-
-# directory for deployment files (e.g. database files)
-deployment_dir = config("deployment_dir")
-
-app_name = "mainapp"  # this is the name of the django app (not the project)
 
 # name of the directory for the virtual environment:
-venv = config("venv")
+venv = cfg("venv")
+venv_path = f"/home/{user}/venvs/{venv}"
 
-# -------------------------- End Config section -----------------------
+# because uberspace offers many python versions:
+pipc = cfg("pip_command")
+python_version = cfg("python_version")
 
-# it should not be necessary to change the data below, but it might be interesting what happens.
-# (After all, this code runs on your computer/server under your responsibility).
-
-# because uberspace offers many pip_commands:
-pipc = "pip3.8"
-
-# this is only relevant if you maintain more than one instance
-instance_path = os.path.join(du.get_dir_of_this_file(), "specific")
-
-local_deployment_files_base_dir = du.get_dir_of_this_file()
-repo_base_dir = os.path.split(local_deployment_files_base_dir)[0]
-
-
-IPS()
-exit()
-
-
-du.argparser.add_argument("-o", "--omit-tests", help="omit test execution (e.g. for dev branches)", action="store_true")
-du.argparser.add_argument("-d", "--omit-database",
-                          help="omit database-related-stuff (and requirements)", action="store_true")
-du.argparser.add_argument("-s", "--omit-static", help="omit static file handling", action="store_true")
-du.argparser.add_argument("-x", "--omit-backup",
-                          help="omit db-backup (avoid problems with changed models)", action="store_true")
-du.argparser.add_argument("-p", "--purge", help="purge target directory before deploying", action="store_true")
+du.argparser.add_argument("--dbg", action="store_true",
+                          help="start interactive shell for debugging. Then exit")
 
 args = du.parse_args()
 
 final_msg = f"Deployment script {du.bgreen('done')}."
 
-if args.target == "remote":
-    # this is where the code will live after deployment
-    target_deployment_path = f"/home/{user}/{deployment_dir}"
-    static_root_dir = f"{target_deployment_path}/collected_static"
-    debug_mode = False
-    pip_user_flag = " --user"  # this might be dropped if we use a virtualenv on the remote target
-    allowed_hosts = [f"{user}.uber.space"]
-else:
-    # settings for local deployment
-    static_root_dir = ""
-    target_deployment_path = os.path.join(local_deployment_workdir, deployment_dir)
-    debug_mode = True
-    pip_user_flag = ""  # assume activated virtualenv on local target
-    allowed_hosts = ["*"]
+if not args.target == "remote":
+    raise NotImplementedError
 
-pelican_content_src_dir = config("STATIC_HP_CONTENT_REPO").replace("__BASEDIR__", project_src_path)
-pelican_content_dst_dir = os.path.dirname(config("STATIC_HP_CONTENT_REPO").
-                                          replace("__BASEDIR__", target_deployment_path))
+# this is where the code will live after deployment
+target_deployment_path = cfg("deployment_path")
+static_root_dir = f"{target_deployment_path}/collected_static"
+debug_mode = False
 
-venv_dir = f"/home/{user}/{venv}"
-
-# TODO
-init_fixture_path = os.path.join(target_deployment_path, "fixitures/init_fixture.json")
-
-# generate the uwsgi config file
-tmpl_path = os.path.join("uberspace", "uwsgi", "apps-enabled", "template_pages.ini")
-du.render_template(tmpl_path, context=dict(user=user, deployment_dir=target_deployment_path, venv_dir=venv_dir))
-
-# generate the uwsgi ini-file
-tmpl_path = os.path.join("uberspace", "etc", "services.d", "template_uwsgi.ini")
-du.render_template(tmpl_path, context=dict(venv_abs_bin_path=f"%(ENV_HOME)s/{venv}/bin/"))
-
-
-# TODO: make a backup of the remote-data
 # print a warning for data destruction
-du.warn_user(app_name, args.target, args.unsafe, deployment_path=target_deployment_path)
+du.warn_user(cfg("PROJECT_NAME"), args.target, args.unsafe, deployment_path=target_deployment_path,
+             user=user, host=remote)
 
+# ensure clean workdir
+os.system(f"rm -rf {temp_workdir}")
+os.makedirs(temp_workdir)
 
 c = du.StateConnection(remote, user=user, target=args.target)
 
 
-if args.initial:
-    if not args.target == "remote":
-        print("\n", du.bred("  The `--initial` option explicitly requires the target==`remote`"), "\n")
-        exit()
+def create_and_setup_venv(c):
 
     c.run(f"{pipc} install --user virtualenv")
 
@@ -131,28 +90,58 @@ if args.initial:
     c.chdir("~")
 
     c.run(f"rm -rf {venv}")
-    c.run(f"virtualenv -p python3.7 {venv}")
+    c.run(f"virtualenv -p {python_version} {venv}")
+
     c.activate_venv(f"~/{venv}/bin/activate")
 
-    # this was necessary to prevent errors on uberspace
     c.run(f"pip install --upgrade pip")
     c.run(f"pip install --upgrade setuptools")
+
+    print("\n", "install uwsgi", "\n")
+    c.run(f'pip install uwsgi')
 
     # ensure that the same version of deploymentutils like on the controller-pc is also in the server
     c.deploy_this_package()
 
-    print("\n", "install uwsgi", "\n")
-    c.run(f'pip install uwsgi', target_spec="remote")
 
-    print("\n", "upload config files for initial deployment", "\n")
+def render_and_upload_config_files(c):
 
-    srcpath1 = os.path.join(local_deployment_files_base_dir, "uberspace")
-    srcpath2 = os.path.join(local_deployment_files_base_dir, "general")
+    c.activate_venv(f"~/{venv}/bin/activate")
 
-    # upload config files to $HOME
-    filters = "--exclude='README.md' --exclude='*/template_*'"
+    # generate the general uwsgi ini-file
+    tmpl_dir = os.path.join("uberspace", "etc", "services.d")
+    tmpl_name = "template_PROJECT_NAME_uwsgi.ini"
+    target_name = "PROJECT_NAME_uwsgi.ini".replace("PROJECT_NAME", project_name)
+    du.render_template(
+        tmpl_path=pjoin(asset_dir, tmpl_dir, tmpl_name),
+        target_path=pjoin(temp_workdir, tmpl_dir, target_name),
+        context=dict(venv_abs_bin_path=f"{venv_path}/bin/", project_name=project_name)
+    )
+
+    # generate config file for django uwsgi-app
+    tmpl_dir = pjoin("uberspace", "uwsgi", "apps-enabled")
+    tmpl_name = "template_PROJECT_NAME.ini"
+    target_name = "PROJECT_NAME.ini".replace("PROJECT_NAME", project_name)
+    du.render_template(
+        tmpl_path=pjoin(asset_dir, tmpl_dir, tmpl_name),
+        target_path=pjoin(temp_workdir, tmpl_dir, target_name),
+        context=dict(venv_abs_bin_path=f"{venv_path}/bin/",
+                     deployment_path=target_deployment_path,
+                     port=port,
+                     user=user)
+    )
+
+    #
+    # ## upload config files to remote $HOME ##
+    #
+    srcpath1 = os.path.join(temp_workdir, "uberspace")
+    filters = "--exclude='**/README.md' --exclude='**/template_*'"  # not necessary but harmless
     c.rsync_upload(srcpath1 + "/", "~", filters=filters, target_spec="remote")
-    c.rsync_upload(srcpath2 + "/", "~", filters=filters, target_spec="remote")
+
+
+def update_supervisorctl(c):
+
+    c.activate_venv(f"~/{venv}/bin/activate")
 
     c.run('supervisorctl reread', target_spec="remote")
     c.run('supervisorctl update', target_spec="remote")
@@ -164,28 +153,45 @@ if args.initial:
     assert "uwsgi" in res1.stdout
     assert "RUNNING" in res1.stdout
 
-    c.run('uberspace web backend set / --apache', target_spec="remote")
-    c.run('uberspace web backend set /d --http --port 8000', target_spec="remote")
 
-    # note 1: the static files which are used by django are served under /static/ (not /d/static)
-    # note 2: configuring apache to serve /static is not necessary (as already covered by /) but it does not harm
-    c.run('uberspace web backend set /static --apache', target_spec="remote")
+def set_web_backend(c):
+    c.activate_venv(f"~/{venv}/bin/activate")
 
-    # !!TODO:
-    # erinnerung:
-    # (vielleicht besser mit rsync und Zugangsbeschränkung)
-    # um staging-Übersicht zu erzeugen habe ich bisher manuell eine entsprechende .htaccess-Datei abgelegt
-    # https://support.tigertech.net/directory-index
-    # run('echo "Options +Indexes" > /var/www.../staging/.htaccess'
+    c.run(f'uberspace web backend set {django_url_prefix} --http --port {port}', target_spec="remote")
 
-    c.deactivate_venv()
+    # note 1: the static files which are used by django are served under '{static_url_prefix}'/
+    # (not {django_url_prefix}}{static_url_prefix})
+    # they are served by apache from ~/html{static_url_prefix}, e.g. ~/html/markpad1-static
 
-if args.purge:
+    c.run(f'uberspace web backend set {static_url_prefix} --apache', target_spec="remote")
+
+
+def upload_files():
+    print("\n", "ensure that deployment path exists", "\n")
+    c.run(f"mkdir -p {target_deployment_path}", target_spec="both")
+
+    c.activate_venv(f"~/{venv}/bin/activate")
+
+    print("\n", "upload config file", "\n")
+    c.rsync_upload(cfg.path, target_deployment_path, target_spec="remote")
+
+    c.chdir(target_deployment_path)
+
+    print("\n", "upload current application files for deployment", "\n")
+    # omit irrelevant files (like .git)
+    # TODO: this should be done more elegantly
+    filters = \
+        f"--exclude='.git/' " \
+        f"--exclude='.idea/' " \
+        f"--exclude='db.sqlite3' " \
+        ""
+
+    c.rsync_upload(project_src_path + "/", target_deployment_path, filters=filters, target_spec="both")
+
+
+def purge_deployment_dir(c):
     if not args.omit_backup:
         print("\n", du.bred("  The `--purge` option explicitly requires the `--omit-backup` option. Quit."), "\n")
-        exit()
-    elif args.omit_database:
-        print("\n", du.bred("  The `--purge` option conflicts  `--omit-database` option. Quit."), "\n")
         exit()
     else:
         answer = input(f"purging <{args.target}>/{target_deployment_path} (y/N)")
@@ -194,82 +200,23 @@ if args.purge:
             exit()
         c.run(f"rm -r {target_deployment_path}", target_spec="both")
 
-print("\n", "ensure that deployment path exists", "\n")
-c.run(f"mkdir -p {target_deployment_path}", target_spec="both")
 
-c.activate_venv(f"~/{venv}/bin/activate")
+def install_app(c):
+    c.activate_venv(f"~/{venv}/bin/activate")
 
-print("\n", "upload config file", "\n")
-c.rsync_upload(config.path, target_deployment_path, target_spec="remote")
-
-c.chdir(target_deployment_path)
-
-print("\n", "upload current application files for deployment", "\n")
-# omit irrelevant files (like .git)
-# TODO: this should be done more elegantly
-filters = \
-    f"--exclude='.git/' " \
-    f"--exclude='.idea/' " \
-    f"--exclude='static_hp/content' " \
-    f"--exclude='settings/__pycache__/*' " \
-    f"--exclude='{app_name}/__pycache__/*' " \
-    f"--exclude='__pycache__/' " \
-    f"--exclude='deployment_utils/' " \
-    f"--exclude='django_moodpoll.egg-info/' " \
-    f"--exclude='db.sqlite3' " \
-    ""
-
-c.rsync_upload(project_src_path + "/", target_deployment_path, filters=filters, target_spec="both")
-
-# now rsync instance-specific data (this might overwrite generic data from the project)
-# this file should usually not be overwritten
-filters = "--exclude='README.md'"
-c.rsync_upload(instance_path + "/", target_deployment_path, filters=filters, target_spec="both")
-
-# rsync pelican content
-c.rsync_upload(pelican_content_src_dir, pelican_content_dst_dir, filters="", target_spec="remote")
-
-# .............................................................................................
-
-# while this has nothing todo with the database, it serves our purpose to get a fast deployment for the option
-if not args.omit_database:
-    print("\n", "install dependencies", "\n")
-    res = c.run(f'pip show django', target_spec="both", warn=False)
-    loc = re.findall("Location:.*", res.stdout)
-    if args.target == "local" and len(loc) == 0:
-        msg = f"{du.bred('Caution:')} django seems not to be installed on local system.\n" \
-              f"This might indicate some problem with pip or the virtualenv not activated.\n"
-        print(msg)
-
-        cmd = ["python", "-c", "import sys; print('; '.join(sys.path))"]
-        syspath = c.run(cmd, target_spec="local").stdout
-
-        print("This is your current python-path:\n\n", syspath)
-
-        res = input("Continue and install django in that path (N/y)? ")
-        if res.lower() != "y":
-            print(du.bred("Aborted."))
-            exit()
-
+    c.chdir(target_deployment_path)
     c.run(f'pip install -r requirements.txt', target_spec="both")
 
-if args.symlink:
-    assert args.target == "local"
-    app_path = os.path.join(repo_base_dir, app_name)
-    c.run(["rm", "-r", os.path.join(target_deployment_path, app_name)], target_spec="local")
-    c.run(["ln", "-s", app_path, os.path.join(target_deployment_path, app_name)], target_spec="local")
 
-if not args.initial and not args.omit_backup:
+def initialize_db(c):
 
-    print("\n", "backup old database", "\n")
-    res = c.run('python manage.py savefixtures', target_spec="both")
-
-
-if not args.omit_database:
-    print("\n", "prepare and create new database", "\n")
-
-    # this currently fails (due to no matching directory structure)
+    c.chdir(target_deployment_path)
     c.run('python manage.py makemigrations', target_spec="both")
+
+    # This deletes all data (OK for this app but probably not OK for others) -> backup db before
+
+    # print("\n", "backup old database", "\n")
+    # res = c.run('python manage.py savefixtures', target_spec="both")
 
     # delete old db
     c.run('rm -f db.sqlite3', target_spec="both")
@@ -277,32 +224,66 @@ if not args.omit_database:
     # this creates the new database
     c.run('python manage.py migrate', target_spec="both")
 
-    print("\n", "install initial data", "\n")
-    c.run(f"python manage.py loaddata {init_fixture_path}", target_spec="both")
+    # print("\n", "install initial data", "\n")
+    # c.run(f"python manage.py loaddata {init_fixture_path}", target_spec="both")
 
-if not args.omit_static:
-    print("\n", "copy static files to final location", "\n")
+
+def generate_static_files(c):
+
+    c.chdir(target_deployment_path)
+
     c.run('python manage.py collectstatic --no-input', target_spec="remote")
 
-    if args.target == "remote":
-        print("\n", "copy static files to the right place", "\n")
-        c.chdir(f"/var/www/virtual/{user}/html")
-        c.run('rm -rf static')
-        c.run(f'cp -r {static_root_dir} static')
+    print("\n", "copy static files to the right place", "\n")
+    c.chdir(f"/var/www/virtual/{user}/html")
+    c.run(f'rm -rf .{static_url_prefix}')
+    c.run(f'cp -r {static_root_dir} .{static_url_prefix}')
 
-c.chdir(target_deployment_path)
+    c.chdir(target_deployment_path)
 
-if not args.omit_tests:
+
+def run_tests(c):
+    c.chdir(target_deployment_path)
     print("\n", "run tests", "\n")
     c.run(f'python manage.py test {app_name}', target_spec="both")
 
-if args.target == "local":
-    print("\n", f"now you can go to {target_deployment_path} and run `python manage.py runserver", "\n")
-else:
-    print("\n", "restart uwsgi service", "\n")
-    c.run(f"supervisorctl restart uwsgi", target_spec="remote")
 
-# c.run(f'python manage.py trigger_pelican main', target_spec="both")
+if args.dbg:
+    # c.activate_venv(f"{venv_path}/bin/activate")
+
+    render_and_upload_config_files(c)
+
+    IPS()
+    exit()
+
+if args.purge:
+    purge_deployment_dir(c)
+
+if args.initial:
+
+    create_and_setup_venv(c)
+    render_and_upload_config_files(c)
+    update_supervisorctl(c)
+    set_web_backend(c)
+
+
+upload_files()
+
+if not args.omit_requirements:
+    install_app(c)
+
+if not args.omit_database:
+    initialize_db(c)
+
+if not args.omit_static:
+    generate_static_files(c)
+
+if not args.omit_tests:
+    run_tests(c)
+
+print("\n", "restart uwsgi service", "\n")
+c.run(f"supervisorctl restart uwsgi", target_spec="remote")
+
 
 
 print(final_msg)

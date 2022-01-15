@@ -8,3 +8,7 @@ db.sqlite3
 
 # avoid accedential publishing of configuration
 config*.ini
+
+# exclude temporary files created during deployment
+
+tmp_*
