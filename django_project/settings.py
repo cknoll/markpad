@@ -36,7 +36,7 @@ URL_ENCRYPTION_KEY = cfg("URL_ENCRYPTION_KEY").encode("utf8")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = cfg("DEBUG")
 
-ALLOWED_HOSTS = cfg("ALLOWED_HOSTS")
+ALLOWED_HOSTS = cfg("ALLOWED_HOSTS", cast=cfg.Csv())
 
 DJANGO_URL_PREFIX = cfg("django_url_prefix").lstrip("/")
 
@@ -141,7 +141,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
+# this is the url used for static files of this project
+STATIC_URL = f'/{cfg("static_url_prefix")}/'
+
+# this is the target directory of `python manage.py collectstatic`
+# the files might be copied to anotherplace during deployment
+STATIC_ROOT = cfg("STATIC_ROOT").replace("__BASEDIR__", BASEDIR)
 
 SITE_ID = 1
 

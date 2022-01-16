@@ -50,7 +50,7 @@ project_src_path = os.path.dirname(du.get_dir_of_this_file())
 
 # name of the directory for the virtual environment:
 venv = cfg("venv")
-venv_path = f"/home/{user}/venvs/{venv}"
+venv_path = f"/home/{user}/{venv}"
 
 # because uberspace offers many python versions:
 pipc = cfg("pip_command")
@@ -58,6 +58,18 @@ python_version = cfg("python_version")
 
 du.argparser.add_argument("--dbg", action="store_true",
                           help="start interactive shell for debugging. Then exit")
+
+du.argparser.add_argument("--omit_requirements", action="store_true",
+                          help="do not install requirements (allows to speed up deployment)")
+
+du.argparser.add_argument("--omit_database", action="store_true",
+                          help="omit database handling")
+
+du.argparser.add_argument("--omit_static", action="store_true",
+                          help="omit handling of static files")
+
+du.argparser.add_argument("--omit-tests", action="store_true",
+                          help="omit test execution")
 
 args = du.parse_args()
 
@@ -125,7 +137,7 @@ def render_and_upload_config_files(c):
     du.render_template(
         tmpl_path=pjoin(asset_dir, tmpl_dir, tmpl_name),
         target_path=pjoin(temp_workdir, tmpl_dir, target_name),
-        context=dict(venv_abs_bin_path=f"{venv_path}/bin/",
+        context=dict(venv_dir=f"{venv_path}",
                      deployment_path=target_deployment_path,
                      port=port,
                      user=user)
@@ -166,7 +178,7 @@ def set_web_backend(c):
     c.run(f'uberspace web backend set {static_url_prefix} --apache', target_spec="remote")
 
 
-def upload_files():
+def upload_files(c):
     print("\n", "ensure that deployment path exists", "\n")
     c.run(f"mkdir -p {target_deployment_path}", target_spec="both")
 
@@ -237,7 +249,7 @@ def generate_static_files(c):
     print("\n", "copy static files to the right place", "\n")
     c.chdir(f"/var/www/virtual/{user}/html")
     c.run(f'rm -rf .{static_url_prefix}')
-    c.run(f'cp -r {static_root_dir} .{static_url_prefix}')
+    c.run(f'cp -r {static_root_dir} ./{static_url_prefix}')
 
     c.chdir(target_deployment_path)
 
@@ -249,25 +261,22 @@ def run_tests(c):
 
 
 if args.dbg:
-    # c.activate_venv(f"{venv_path}/bin/activate")
+    c.activate_venv(f"{venv_path}/bin/activate")
 
-    render_and_upload_config_files(c)
+    # c.deploy_local_package("/home/ck/projekte/rst_python/ipydex/repo")
 
     IPS()
     exit()
 
-if args.purge:
-    purge_deployment_dir(c)
-
 if args.initial:
 
-    create_and_setup_venv(c)
+    # create_and_setup_venv(c)
     render_and_upload_config_files(c)
     update_supervisorctl(c)
     set_web_backend(c)
 
 
-upload_files()
+upload_files(c)
 
 if not args.omit_requirements:
     install_app(c)
@@ -283,7 +292,6 @@ if not args.omit_tests:
 
 print("\n", "restart uwsgi service", "\n")
 c.run(f"supervisorctl restart uwsgi", target_spec="remote")
-
 
 
 print(final_msg)

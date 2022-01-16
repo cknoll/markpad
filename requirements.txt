@@ -2,4 +2,5 @@ django
 django_nose
 rednose
 ipydex
+markdown
 django-bleach
