@@ -1,24 +1,28 @@
-# General Information
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-This repository contains a rudimentary *django project* (named `django_project`) and an almost empty example *app* (called `mainapp`). It is based on <https://djangoforbeginners.com/hello-world/>.
 
-**Features:**
-- Working HTML template with associated files for CSS and JavaScript.
-- Basic unittest
-- Rudimentary debugging infrastructure based on [ipydex](https://github.com/cknoll/ipydex) 
 
-This django project should simplify and speed up getting started with a new project.
+# About markpad
 
-Nevertheless, if you have never used django before, working through the [django tutorial](https://docs.djangoproject.com/en/3.1/intro/tutorial01/) is highly recommended. 
+markpad is a simple web application to display the content of etherpads interpreted as markdown source. It thus allows to combine the power of etherpads (author-colors, simple installation, variety of plugins, ...) with the aesthetics of markdown rendering.
+
+markpad is free software and hosted on [codeberg](https://codeberg.org/cknoll/markpad) and [github](https://codeberg.org/cknoll/markpad).
+
 
 # Local Testing Deployment
 - Clone the repo
 - Activate an appropriate environment (venv, conda)
 - Run `pip install -r requirements.txt`
-- Initialize the database `python manage.py migrate`
-- Run the unittests with `python manage.py test --rednose` 
+- Create your configuration file (`config-production.ini`) from `deployment/config-example.ini`.
+- Initialize the database:
+    - `python manage.py makemigratins`
+    - `python manage.py migrate`
+- Run the unittests with `python manage.py test`
 - Start the test server with `python manage.py runserver`
 
 
 # Deployment on Remote Server
-- to be added
+
+`deployment/deploy.py` is taylored towards deployment on [uberspace.de](https://uberspace.de).
+
+See: [deployment/README.md](deployment/README.md).
