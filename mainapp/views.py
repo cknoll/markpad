@@ -13,19 +13,19 @@ static_page_blocks = util.get_static_pages()
 def home_page_view(request):
     context = dict()
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form_data_str = request.POST.get("field1")
 
         # use the Post-Redirect-Get (PRG) pattern
         # (see: https://www.theserverside.com/news/1365146/Redirect-After-Post)
 
         if form_data_str == "":
-            url = reverse('md_preview')
+            url = reverse("md_preview")
         else:
-            url = reverse('md_preview', kwargs={"src_url": form_data_str})
+            url = reverse("md_preview", kwargs={"src_url": form_data_str})
         return HttpResponseRedirect(url)
 
-    return render(request, 'mainapp/main.html', context)
+    return render(request, "mainapp/main.html", context)
 
 
 class ViewMdPreview(View):
@@ -57,7 +57,7 @@ class ViewMdPreview(View):
         ctn.src_txt = src_txt
 
         context = {"ctn": ctn}
-        return render(request, 'mainapp/md_preview.html', context)
+        return render(request, "mainapp/md_preview.html", context)
 
 
 class StaticContent(View):
@@ -78,7 +78,7 @@ class StaticContent(View):
         ctn.src_txt = block.content
 
         context = {"ctn": ctn}
-        return render(request, 'mainapp/static_page.html', context)
+        return render(request, "mainapp/static_page.html", context)
 
 
 # noinspection PyUnresolvedReferences

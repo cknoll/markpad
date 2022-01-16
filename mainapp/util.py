@@ -5,6 +5,7 @@ from cryptography.fernet import Fernet
 
 # noinspection PyUnresolvedReferences
 from ipydex import IPS, activate_ips_on_exception
+
 activate_ips_on_exception()
 
 
@@ -15,7 +16,9 @@ class Container(dict):
 
 
 def get_static_pages() -> dict:
-    with open(os.path.join(settings.BASEDIR, "mainapp", "static", "mainapp", "static-content.md"), "r") as txtfile:
+    with open(
+        os.path.join(settings.BASEDIR, "mainapp", "static", "mainapp", "static-content.md"), "r"
+    ) as txtfile:
         static_content_raw = txtfile.read()
     blocks = static_content_raw.split("<!-- --block-separator-- -->")
 

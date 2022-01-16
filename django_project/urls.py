@@ -25,6 +25,6 @@ if prefix != "":
         prefix = f"{prefix}/"
 
 urlpatterns = [
-    path(f'{prefix}admin/', admin.site.urls),
-    path(f'{prefix}', include('mainapp.urls')),
+    path(f"{prefix}admin/", admin.site.urls),
+    path(f"{prefix}", include("mainapp.urls")),
 ]
