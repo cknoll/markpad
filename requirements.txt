@@ -4,3 +4,4 @@ rednose
 ipydex
 markdown
 django-bleach
+deploymentutils
