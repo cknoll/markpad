@@ -9,4 +9,7 @@ jobs:
     steps:
       - checkout
       - run: pip install -r requirements.txt
+
+      # this is OK for unit tests but not recommended for production!
+      - run: cp deployment/config-example.ini deployment/config-production.ini
       - run: python manage.py test
