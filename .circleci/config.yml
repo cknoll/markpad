@@ -1,0 +1,14 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      NO_IPS_EXCEPTHOOK: True
+    steps:
+      - checkout
+      - run: pip install -r requirements.txt
+      - run: pip install -e .
+
+      - run: python manage.py test
