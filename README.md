@@ -6,7 +6,7 @@
 
 markpad is a simple web application to display the content of etherpads interpreted as markdown source. It thus allows to combine the power of etherpads (author-colors, simple installation, variety of plugins, ...) with the aesthetics of markdown rendering.
 
-markpad is free software and hosted on [codeberg](https://codeberg.org/cknoll/markpad) and [github](https://githubg.org/cknoll/markpad).
+markpad is free software and hosted on [codeberg](https://codeberg.org/cknoll/markpad) and [github](https://github.org/cknoll/markpad).
 
 
 # Local Testing Deployment
