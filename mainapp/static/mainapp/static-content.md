@@ -1,5 +1,5 @@
 <!-- ::slug:about -->
-<!-- ::title:About markpad -->
+<!-- ::title:About [markpad](https://scra.uber.space/mp/) -->
 # About markpad
 
 markpad is a simple web application to display the content of etherpads interpreted as [markdown source](https://www.markdownguide.org/basic-syntax/). It thus allows to combine the power of etherpads (author-colors, simple installation, variety of plugins, ...) with the aesthetics of markdown rendering.
