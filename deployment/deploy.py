@@ -303,7 +303,7 @@ if not args.omit_tests:
     run_tests(c)
 
 print("\n", "restart uwsgi service", "\n")
-c.run(f"supervisorctl restart uwsgi", target_spec="remote")
+c.run(f"supervisorctl restart all", target_spec="remote")
 
 
 print(final_msg)
