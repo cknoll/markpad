@@ -6,6 +6,24 @@
 
 {% block title %}simple markdown preview{% endblock %}
 
+{% block scripts %}
+<!--<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>-->
+
+{% if ctn.enable_mathjax %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML-full"></script>
+
+<!-- source2: https://github.com/mitya57/python-markdown-math  -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  config: ["MMLorHTML.js"],
+  jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],
+  extensions: ["MathMenu.js", "MathZoom.js"]
+});
+</script>
+{% endif %}
+{% endblock %}
+
 
 {% block header_warning %}
 <div class="headerbar-warning">
@@ -34,7 +52,7 @@
 
 <div class="box_base box_top_content modest_links">
 
-{{ctn.src_txt|render_markdown|bleach}}
+{{ctn.processed_txt|bleach}}
 
 </div>
 

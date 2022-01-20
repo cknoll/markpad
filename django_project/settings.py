@@ -167,7 +167,31 @@ BLEACH_ALLOWED_TAGS = [
     "code",
     "hr",
     "br",
+    "span",
+    "div",
+    "script"
 ]
+
+
+def allow_attributes(tag, name, value):
+    """
+    Use callable to decide which attributes we allow.
+    Background: "script" should only be allowed for type="math/tex".
+
+    see also: https://bleach.readthedocs.io/en/latest/clean.html#allowed-tags-tags
+    """
+    if name in ['href', 'title', 'style']:
+        return True
+    elif tag in ("span", "div") and name == "class":
+        return True
+    elif tag == "script" and name == "type" and value.startswith("math/tex"):
+        return True
+    else:
+        return False
+
+
+BLEACH_ALLOWED_ATTRIBUTES = allow_attributes
+
 
 # MARKDOWNIFY_WHITELIST_TAGS defaults to bleach.sanitizer.ALLOWED_TAGS
 MARKDOWNIFY_STRIP = False

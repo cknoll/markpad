@@ -85,3 +85,20 @@ class TestUtils(TestCase):
         self.assertEqual(res2, url)
         print(url)
         print(res)
+
+    def test_recognize_mathjax(self):
+        str1 = '<div class="MathJax_Preview"> \\begin{align*}...'
+        str2 = 'foo\n<span class="MathJax_Preview"> \\begin{align*}...\nbar'
+        str3 = 'foo\n<div class="Math--Jax_Preview"> \\begin{align*}...\nbar'
+
+        self.assertTrue(util.recognize_mathjax(str1))
+        self.assertTrue(util.recognize_mathjax(str2))
+        self.assertFalse(util.recognize_mathjax(str3))
+
+    def test_render_formula(self):
+
+        html1 = util.render_markdown("formula: $a + b$")
+        html2 = util.render_markdown("formula:\n $$a + b$$ \n")
+
+        self.assertTrue(util.recognize_mathjax(html1))
+        self.assertTrue(util.recognize_mathjax(html2))

@@ -1,14 +1,12 @@
 from django import template
 
 import markdown
+from mainapp import util
 
 register = template.Library()
-md = markdown.Markdown(extensions=["extra"])
 
 
-@register.filter
-def render_markdown(txt):
-    return md.convert(txt)
+render_markdown = register.filter(util.render_markdown)
 
 
 # maybe a restart of the server is neccessary after chanching this file

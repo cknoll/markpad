@@ -3,5 +3,6 @@ django_nose
 rednose
 ipydex
 markdown
+pymdown-extensions
 django-bleach
 deploymentutils

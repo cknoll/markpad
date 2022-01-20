@@ -56,6 +56,9 @@ class ViewMdPreview(View):
 
         ctn.src_txt = src_txt
 
+        ctn.processed_txt = util.render_markdown(src_txt)
+        ctn.enable_mathjax = util.recognize_mathjax(ctn.processed_txt)
+
         context = {"ctn": ctn}
         return render(request, "mainapp/md_preview.html", context)
 

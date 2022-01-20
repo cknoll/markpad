@@ -2,17 +2,30 @@ import os
 from django.conf import settings
 import re
 from cryptography.fernet import Fernet
+import markdown
 
 # noinspection PyUnresolvedReferences
 from ipydex import IPS, activate_ips_on_exception
 
-activate_ips_on_exception()
+# activate_ips_on_exception()
 
 
 class Container(dict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__dict__ = self
+
+
+md = markdown.Markdown(extensions=["extra", "nl2br", "pymdownx.magiclink", "pymdownx.arithmatex"])
+
+# Extension description:
+# https://python-markdown.github.io/extensions/extra/ # tables, footnotes, ...
+# https://python-markdown.github.io/extensions/nl2br/ newline to break
+# https://facelessuser.github.io/pymdown-extensions/extensions/magiclink/
+
+
+def render_markdown(txt):
+    return md.convert(txt)
 
 
 def get_static_pages() -> dict:
@@ -53,9 +66,26 @@ def parse_block(block) -> Container:
     return ctn
 
 
+mathjax_pattern = re.compile('.*class *=.?MathJax_Preview.*', re.MULTILINE)
+
+
+def recognize_mathjax(html):
+    res_iter = mathjax_pattern.finditer(html)
+    try:
+        next(res_iter)
+    except StopIteration:
+        # iterator was empty (nothing found)
+        return False
+    else:
+        # iterator was not empty (something found)
+        return True
+
+
+split_url_pattern = re.compile(r"^(https?://.*?/)(.*)$")
+
+
 def split_url(url: str) -> (str, str):
-    pattern = re.compile(r"^(https?://.*?/)(.*)$")
-    match = pattern.match(url)
+    match = split_url_pattern.match(url)
 
     if not match:
         raise ValueError(f"invalid url: {url}")
