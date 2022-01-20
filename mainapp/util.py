@@ -121,7 +121,7 @@ def decrypt_str(s: str) -> str:
     return f.decrypt(mybytes).decode("utf8")
 
 
-def custom_bleach(html_src):
+def custom_bleach(html_src, handle_mathjax=True):
     """
     The bleach sanitizer converts `&` → `&amp;`, `<` → `&lt;` etc.
     Inside some tags this is not desired. This function is a workaround for this.
@@ -132,29 +132,34 @@ def custom_bleach(html_src):
     3. perform inverse replacement
 
 
-    :param html_src:    the html source which has to be sanitized
+    :param html_src:        the html source which has to be sanitized
+    :param handle_mathjax:  flag whether to handle mathjax. apply bleach directly if false.
     :return:            the sanitized html source
     """
-    soup = BeautifulSoup(html_src, 'html.parser')
+    bleach_kwargs = dict(tags=settings.BLEACH_ALLOWED_TAGS, attributes=settings.BLEACH_ALLOWED_ATTRIBUTES)
 
-    tags1 = soup.find_all("span", class_="MathJax_Preview")
-    tags2 = soup.find_all("div", class_="MathJax_Preview")
-    tags = tags1 + tags2
+    if handle_mathjax:
+        soup = BeautifulSoup(html_src, 'html.parser')
 
-    content_store = {}
-    tag_template = '<{tag} class="MathJax_Preview">{content}</{tag}>'
+        tags1 = soup.find_all("script", attrs={'type': 'math/tex'})
+        tags2 = soup.find_all("script", attrs={'type': 'math/tex; mode=display'})
+        tags = tags1 + tags2
+        content_store = {}
+        tag_template = '<{tag} type="{type_}">{content}</{tag}>'
 
-    for i, tag in enumerate(tags):
-        key = f"__replacement{i}__"
-        content_store[key] = tag.contents[0]
-        new_tag = tag_template.format(tag=tag.name, content=key)
-        tag.replace_with(new_tag)
+        for i, tag in enumerate(tags):
+            key = f"__replacement{i}__"
+            content_store[key] = tag.contents[0]
+            new_tag = tag_template.format(tag=tag.name, type_=tag.attrs["type"], content=key)
+            tag.replace_with(new_tag)
 
-    kwargs = dict(tags=settings.BLEACH_ALLOWED_TAGS, attributes=settings.BLEACH_ALLOWED_ATTRIBUTES)
-    sanitized_html = bleach.clean(soup.decode(formatter=None), **kwargs)
+        sanitized_html = bleach.clean(soup.decode(formatter=None), **bleach_kwargs)
 
-    # apply inverse replacement (inspired by https://stackoverflow.com/a/64621297/333403)
-    pattern = re.compile("|".join(content_store.keys()))
-    final_sanitized_html = pattern.sub(lambda m: content_store[re.escape(m.group(0))], sanitized_html)
+        # apply inverse replacement (inspired by https://stackoverflow.com/a/64621297/333403)
+        pattern = re.compile("|".join(content_store.keys()))
+        final_sanitized_html = pattern.sub(lambda m: content_store[re.escape(m.group(0))], sanitized_html)
+    else:
+        # this saves time if html_src does not contain mathjax
+        final_sanitized_html = bleach.clean(html_src, **bleach_kwargs)
 
     return final_sanitized_html

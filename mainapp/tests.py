@@ -107,8 +107,8 @@ class TestUtils(TestCase):
     def test_custom_bleach(self):
 
         # test bleach in general
-        str1 = '<div class="MathJax_Preview">test</div>'
-        str2 = '<span class="MathJax_Preview">test</span>'
+        str1 = '<script type="math/tex">test</script>'
+        str2 = '<script type="math/tex; mode=display">test</script>'
 
         kwargs = dict(tags=settings.BLEACH_ALLOWED_TAGS, attributes=settings.BLEACH_ALLOWED_ATTRIBUTES)
 
@@ -119,11 +119,11 @@ class TestUtils(TestCase):
         self.assertEqual(str2, res2)
 
         # test (here undesired) behavior of default bleach
-        str1 = '<span class="MathJax_Preview">a > b < c \\& d</span><p>a > b < c \\& d</p>'
+        str1 = '<script type="math/tex">a > b < c \\& d</script><p>a > b < c \\& d</p>'
         res1 = util.bleach.clean(str1, **kwargs)
-        e_res1 = '<span class="MathJax_Preview">a &gt; b &lt; c \\&amp; d</span><p>a &gt; b &lt; c \\&amp; d</p>'
+        e_res1 = '<script type="math/tex">a &gt; b &lt; c \\&amp; d</script><p>a &gt; b &lt; c \\&amp; d</p>'
         self.assertEqual(res1, e_res1)
 
         # test (desired) behavior of wrapped bleach
         res1 = util.custom_bleach(str1)
-        self.assertEqual(res1, '<span class="MathJax_Preview">a > b < c \\& d</span><p>a &gt; b &lt; c \\&amp; d</p>')
+        self.assertEqual(res1, '<script type="math/tex">a > b < c \\& d</script><p>a &gt; b &lt; c \\&amp; d</p>')

@@ -60,7 +60,7 @@ class ViewMdPreview(View):
 
         raw_html = util.render_markdown(src_txt)
         ctn.enable_mathjax = util.recognize_mathjax(raw_html)
-        ctn.sanitized_html = util.custom_bleach(raw_html)
+        ctn.sanitized_html = util.custom_bleach(raw_html, ctn.enable_mathjax)
 
         context = {"ctn": ctn}
         return render(request, "mainapp/md_preview.html", context)
