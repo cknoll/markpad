@@ -5,4 +5,5 @@ ipydex
 markdown
 pymdown-extensions
 django-bleach
+beautifulsoup4
 deploymentutils

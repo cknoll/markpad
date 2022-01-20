@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.conf import settings
 from . import util
 from ipydex import IPS
 
@@ -102,3 +103,27 @@ class TestUtils(TestCase):
 
         self.assertTrue(util.recognize_mathjax(html1))
         self.assertTrue(util.recognize_mathjax(html2))
+
+    def test_custom_bleach(self):
+
+        # test bleach in general
+        str1 = '<div class="MathJax_Preview">test</div>'
+        str2 = '<span class="MathJax_Preview">test</span>'
+
+        kwargs = dict(tags=settings.BLEACH_ALLOWED_TAGS, attributes=settings.BLEACH_ALLOWED_ATTRIBUTES)
+
+        res1 = util.bleach.clean(str1, **kwargs)
+        res2 = util.bleach.clean(str2, **kwargs)
+
+        self.assertEqual(str1, res1)
+        self.assertEqual(str2, res2)
+
+        # test (here undesired) behavior of default bleach
+        str1 = '<span class="MathJax_Preview">a > b < c \\& d</span><p>a > b < c \\& d</p>'
+        res1 = util.bleach.clean(str1, **kwargs)
+        e_res1 = '<span class="MathJax_Preview">a &gt; b &lt; c \\&amp; d</span><p>a &gt; b &lt; c \\&amp; d</p>'
+        self.assertEqual(res1, e_res1)
+
+        # test (desired) behavior of wrapped bleach
+        res1 = util.custom_bleach(str1)
+        self.assertEqual(res1, '<span class="MathJax_Preview">a > b < c \\& d</span><p>a &gt; b &lt; c \\&amp; d</p>')
