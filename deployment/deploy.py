@@ -260,7 +260,7 @@ def generate_static_files(c):
 
     print("\n", "copy static files to the right place", "\n")
     c.chdir(f"/var/www/virtual/{user}/html")
-    c.run(f"rm -rf .{static_url_prefix}")
+    c.run(f"rm -rf ./{static_url_prefix}")
     c.run(f"cp -r {static_root_dir} ./{static_url_prefix}")
 
     c.chdir(target_deployment_path)
