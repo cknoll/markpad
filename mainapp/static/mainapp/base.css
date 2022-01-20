@@ -22,7 +22,7 @@
 
 /* https://stackoverflow.com/a/19723677/333403 */
 html, body {
-    font-family: sans-serif;
+    font-family: Roboto, sans-serif;
 /*     margin: -8px; */
     margin: 0px;
     padding: 0px;
@@ -125,22 +125,45 @@ div.header a:hover{
 
 }
 
+.boxed {
+    text-align: center;
+    display: inline-block;
+    width: 1.2em;
+    border: 1px solid var(--box-grey);
+}
+
+.box-frame{
+    display: inline-block;
+     --box-grey: #BBB;
+
+}
+.box-frame:hover{
+     --box-grey: #777;
+    background-color: #EEE;
+
+}
+
+
 .main {
 
     flex: 0; /*  allow this element to be as high as needed    */
     color: var(--color-gray-dark-text);
     padding-right: var(--padding-content);
     padding-left: var(--padding-content);
-    padding-top: 15px;
-    padding-bottom: 15px;
+    padding-top: 1em;
+    padding-bottom: 2em;
     margin-top: 10px;
     margin-right: auto;
     margin-left: auto;
     width: var(--width-content);
-    background-color: #FAFAFA;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
     border-radius: 2px;
+
+    /*
+    background-color: #FAFAFA;
     border: 3px solid #EEE;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.02), 0 6px 20px 0 rgba(0, 0, 0, 0.02);
+    */
 }
 
 .form_input {

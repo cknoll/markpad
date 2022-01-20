@@ -165,6 +165,8 @@ BLEACH_ALLOWED_TAGS = [
     "li",
     "pre",
     "code",
+    "hr",
+    "br",
 ]
 
 # MARKDOWNIFY_WHITELIST_TAGS defaults to bleach.sanitizer.ALLOWED_TAGS
