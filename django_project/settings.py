@@ -172,6 +172,9 @@ BLEACH_ALLOWED_TAGS = [
     "script"
 ]
 
+# to get meaningful results here, run `touch requirements.txt` during deployment (see deploy.py)
+LAST_DEPLOYMENT = du.get_deployment_date(os.path.join(BASEDIR, "requirements.txt"))
+
 
 def allow_attributes(tag, name, value):
     """

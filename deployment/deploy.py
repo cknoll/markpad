@@ -208,6 +208,8 @@ def upload_files(c):
         project_src_path + "/", target_deployment_path, filters=filters, target_spec="both"
     )
 
+    c.run(f"touch requirements.txt", target_spec="remote")
+
 
 def purge_deployment_dir(c):
     if not args.omit_backup:
