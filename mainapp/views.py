@@ -41,8 +41,7 @@ class ViewMdPreview(View):
         ctn = Container()
 
         if src_url is None:
-            src_url = "http://--undefined-url--.net/p/undefined"
-            # Todo: This should yield an error page
+            return render_error_page(request, err_msg="No source url was provided.")
 
         if mode == "plain_url":
             ctn.plain_url_mode = True
@@ -50,11 +49,17 @@ class ViewMdPreview(View):
             ctn.src_oburl = util.obfuscate_source_url(src_url)
         else:
             ctn.plain_url_mode = False
-            ctn.src_url = util.deobfuscate_source_url(src_url)
+            try:
+                ctn.src_url = util.deobfuscate_source_url(src_url)
+            except ValueError as ve:
+                return render_error_page(request, ve.args[0])
             ctn.src_oburl = src_url
 
         md_src_url = f"{ctn.src_url}/export/txt"
-        src_txt = get_md_src_or_error_msg(md_src_url)
+        try:
+            src_txt = get_md_src_or_raise_error(md_src_url)
+        except ValueError as ve:
+            return render_error_page(request, ve.args[0])
 
         ctn.src_txt = src_txt
 
@@ -88,7 +93,7 @@ class StaticContent(View):
 
 
 # noinspection PyUnresolvedReferences
-def get_md_src_or_error_msg(md_src_url):
+def get_md_src_or_raise_error(md_src_url):
 
     if "--undefined-url--.net" in md_src_url:
         src_txt = f"**Error:** No source url was provided."
@@ -98,5 +103,12 @@ def get_md_src_or_error_msg(md_src_url):
         r = urllib.request.urlopen(md_src_url)
         src_txt = r.read().decode("utf8")
     except (urllib.error.HTTPError, urllib.error.URLError):
-        src_txt = f"**Error:** The following URL could not be read: \n\n `{md_src_url}`"
+        msg = f"The following URL could not be read: \n\n `{md_src_url}`"
+        raise ValueError(msg)
     return src_txt
+
+
+def render_error_page(request, err_msg: str, prefix="**Error:**"):
+    ctn = Container(err_msg=err_msg, prefix=prefix)
+    context = {"ctn": ctn}
+    return render(request, "mainapp/error_page.html", context)

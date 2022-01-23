@@ -4,6 +4,7 @@
 :root {
 
     --color-gray-dark-text: #333;
+    --color-red-dark-text: #733;
     --color-header-background: #EEE;
     --color-footer-background:  hsl(230, 20%, 15%);
     --color-footer-text:  hsl(00, 10%, 70%);
@@ -164,6 +165,12 @@ div.header a:hover{
     border: 3px solid #EEE;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.02), 0 6px 20px 0 rgba(0, 0, 0, 0.02);
     */
+}
+.error {
+    color: var(--color-red-dark-text);
+    padding: 1em;
+    border: 1px solid  hsla(00, 60%, 40%, 70%);
+
 }
 
 .form_input {

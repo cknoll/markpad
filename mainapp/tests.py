@@ -127,3 +127,11 @@ class TestUtils(TestCase):
         # test (desired) behavior of wrapped bleach
         res1 = util.custom_bleach(str1)
         self.assertEqual(res1, '<script type="math/tex">a > b < c \\& d</script><p>a &gt; b &lt; c \\&amp; d</p>')
+
+    def test_error_page(self):
+        ##!
+        url = reverse("md_preview_oburl", kwargs={"src_url": "foobar"})
+        res = self.client.get(url)
+
+        self.assertContains(res, "utc_error_page")
+

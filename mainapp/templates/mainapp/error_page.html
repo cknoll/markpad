@@ -1,0 +1,23 @@
+{% extends "mainapp/base.html" %}
+{% load extra_filters %}
+{% load bleach_tags %}
+
+
+
+{% block title %}markpad – error{% endblock %}
+
+
+
+
+{% block content %}
+
+<!--utc_error_page-->
+
+<div class="error">
+
+{{ctn.prefix|render_markdown|bleach}} {{ctn.err_msg|render_markdown|bleach}}
+
+</div>
+
+{% endblock %}
+

@@ -1,7 +1,7 @@
 import os
 from django.conf import settings
 import re
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 import markdown
 import bleach
 from bs4 import BeautifulSoup
@@ -118,7 +118,16 @@ def encrypt_str(s: str) -> str:
 def decrypt_str(s: str) -> str:
     mybytes = s.encode("utf8")
     f = Fernet(settings.URL_ENCRYPTION_KEY)
-    return f.decrypt(mybytes).decode("utf8")
+    try:
+        res = f.decrypt(mybytes).decode("utf8")
+    except InvalidToken:
+        if not s.endswith("="):
+            # sometimes the final `=` is missing
+            res = decrypt_str(f"{s}=")
+        else:
+            msg = f"Could not decrypt url-part: {s}"
+            raise ValueError(msg)
+    return res
 
 
 def custom_bleach(html_src, handle_mathjax=True):
