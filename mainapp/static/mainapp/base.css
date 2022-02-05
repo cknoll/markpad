@@ -5,12 +5,15 @@
 
     --color-gray-dark-text: #333;
     --color-red-dark-text: #733;
+    --color-quote-background: hsl(25, 0%, 97%);
     --color-header-background: #EEE;
     --color-footer-background:  hsl(230, 20%, 15%);
     --color-footer-text:  hsl(00, 10%, 70%);
     --color-header-warning-background: hsl(25, 100%, 80%);
     --header-height: 2em;
     --padding-header: 0.3em;
+    --padding-v-quote: 4px;
+    --padding-h-quote: 1em;
     --padding-content: min(2.5vw, 30px);
     --width-content: min(75vw, 60em); /*→ max width of 960px (@ vw=1280)*/
 
@@ -92,6 +95,22 @@ body a:hover{
     width: var(--width-content);
 
     padding: var(--padding-header);
+}
+
+blockquote {
+
+    background-color: var(--color-quote-background);
+/*     color: red; */
+/*     font-style: italic; */
+    padding-top: var(--padding-v-quote);
+    padding-bottom: var(--padding-v-quote);
+    padding-left: var(--padding-h-quote);
+    padding-right: var(--padding-h-quote);
+
+}
+
+blockquote p {
+    margin: 0px;
 }
 
 div.header a{

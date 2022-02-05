@@ -169,7 +169,7 @@ BLEACH_ALLOWED_TAGS = [
     "br",
     "span",
     "div",
-    "script"
+    "script",
     "blockquote"
 ]
 
