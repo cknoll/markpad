@@ -170,6 +170,7 @@ BLEACH_ALLOWED_TAGS = [
     "span",
     "div",
     "script"
+    "blockquote"
 ]
 
 # to get meaningful results here, run `touch requirements.txt` during deployment (see deploy.py)
